@@ -20,6 +20,7 @@ FetchContent_MakeAvailable(cpptrace)
 add_library(
   SegFault
   SHARED
+  libSegFault/config.cpp
   libSegFault/segfault.cpp
   libSegFault/_itoa.cpp
   libSegFault/signal-safe-trace.cpp
