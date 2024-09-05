@@ -319,4 +319,4 @@ static void register_dump(int fd, ucontext_t *ctx)
 }
 
 
-#define REGISTER_DUMP register_dump(fd, ctx)
+#define REGISTER_DUMP register_dump(fd, static_cast<ucontext_t *>(ctx))

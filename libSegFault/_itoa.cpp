@@ -17,9 +17,9 @@
 #include <_itoa.h>
 
 /* Upper-case digits.  */
-static const char _itoa_upper_digits[36] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static const char _itoa_upper_digits[37] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 /* Lower-case digits.  */
-static const char _itoa_lower_digits[36] = "0123456789abcdefghijklmnopqrstuvwxyz";
+static const char _itoa_lower_digits[37] = "0123456789abcdefghijklmnopqrstuvwxyz";
 
 char *_itoa_word(_ITOA_WORD_TYPE value, char *buflim, unsigned int base, int upper_case)
 {
