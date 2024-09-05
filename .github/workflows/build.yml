@@ -29,5 +29,5 @@ jobs:
         with:
           fail_on_unmatched_files: true
           files: |
-            build/bin/libSegFault.so
-            build/bin/tracer
+            build/libSegFault.so
+            build/tracer
