@@ -32,7 +32,7 @@ struct pipe_t
 };
 static_assert(sizeof(pipe_t) == 2 * sizeof(int), "Unexpected struct packing");
 
-std::string tracer_program = "tracer";
+static std::string tracer_program = "tracer";
 
 void warmup_cpptrace()
 {
