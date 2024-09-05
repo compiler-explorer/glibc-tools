@@ -27,7 +27,9 @@ jobs:
       - name: Test
         run: |
           build/tracer --help
-          LIBSEGFAULT_TRACER="$PWD/build/tracer" LD_PRELOAD="$PWD/build/libSegFault.so" build/faulty-example || /bin/true
+          export LIBSEGFAULT_TRACER="$PWD/build/tracer"
+          export LD_PRELOAD="$PWD/build/libSegFault.so"
+          build/faulty-example 2>&1 | grep "faulty-example.cpp"
 
       - name: Release
         uses: softprops/action-gh-release@v2
