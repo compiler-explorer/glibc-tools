@@ -26,8 +26,8 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           path: |
-            build/bin/libSegFault.so
-            build/bin/tracer
+            libSegFault.so
+            tracer
 
       - name: Release
         uses: fnkr/github-action-ghr@v1
