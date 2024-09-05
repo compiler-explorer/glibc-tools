@@ -40,13 +40,14 @@ void warmup_cpptrace()
     cpptrace::get_safe_object_frame(buffer[0], &frame);
 }
 
-std::string getTracerProgram() {
+const char *getTracerProgram() {
+    static const char *emptystr = "";
     if (const char *value = getenv("LIBSEGFAULT_TRACER"))
     {
-        return std::string(value);
+        return value;
     }
 
-    return std::string("");
+    return emptystr;
 }
 
 
@@ -80,14 +81,16 @@ void do_signal_safe_trace()
         dup2(input_pipe.read_end, STDIN_FILENO);
         close(input_pipe.read_end);
         close(input_pipe.write_end);
-        auto tracer_program = getTracerProgram();
-        if (tracer_program.length() == 0) {
+        const char *tracer_program = getTracerProgram();
+        int tracer_program_len = strlen(tracer_program);
+        if (tracer_program_len == 0) {
             std::ignore = write(STDERR_FILENO, no_tracer_message.data(), no_tracer_message.size());
         } else {
-            execl(tracer_program.c_str(), tracer_program.c_str(), nullptr);
+            
+            execl(tracer_program, tracer_program, nullptr);
             auto errcode = errno;
             fprintf(stderr, "errno: %d\n", errcode);
-            fprintf(stderr, "tried to execute: %s\n", tracer_program.c_str());
+            fprintf(stderr, "tried to execute: %s\n", tracer_program);
 
             // https://linux.die.net/man/3/execl - execl() only returns when an error has occured
             //  otherwise this basically exits out of this code
