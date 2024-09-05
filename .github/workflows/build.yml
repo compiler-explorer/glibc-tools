@@ -17,7 +17,7 @@ jobs:
       - name: Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build libunwind-dev
+          sudo apt-get install -y ninja-build
 
       - name: Build
         run: |
