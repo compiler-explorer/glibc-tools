@@ -24,6 +24,12 @@ jobs:
           make release
           tar -C build -cJf glibc-tools-x86_64.tar.xz libSegFault.so tracer
 
+      - name: Test
+        run: |
+          pushd build
+          ./tracer --help
+          popd
+
       - name: Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
