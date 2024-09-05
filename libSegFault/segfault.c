@@ -32,6 +32,8 @@
 #include "intprops.h"
 #include "_itoa.h"
 
+#include "signal-safe-trace.hpp"
+
 #ifdef SA_SIGINFO
 # define SIGCONTEXT siginfo_t *info, void *
 #endif
@@ -87,28 +89,9 @@ catch_segfault (int signal, SIGCONTEXT ctx)
   REGISTER_DUMP;
 #endif
 
-  WRITE_STRING ("\nBacktrace:\n");
+  WRITE_STRING ("\n");
 
-  /* Get the backtrace.  */
-  arr = alloca (256 * sizeof (void *));
-  cnt = backtrace (arr, 256);
-
-  /* Now try to locate the PC from signal context in the backtrace.
-     Normally it will be found at arr[2], but it might appear later
-     if there were some signal handler wrappers.  Allow a few bytes
-     difference to cope with as many arches as possible.  */
-  pc = sigcontext_get_pc (ctx);
-  for (i = 0; i < cnt; ++i)
-    if ((uintptr_t) arr[i] >= pc - 16 && (uintptr_t) arr[i] <= pc + 16)
-      break;
-
-  /* If we haven't found it, better dump full backtrace even including
-     the signal handler frames instead of not dumping anything.  */
-  if (i == cnt)
-    i = 0;
-
-  /* Now generate nicely formatted output.  */
-  backtrace_symbols_fd (arr + i, cnt - i, fd);
+  do_signal_safe_trace();
 
 #ifdef HAVE_PROC_SELF
   /* Now the link map.  */
