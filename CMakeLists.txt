@@ -20,8 +20,9 @@ FetchContent_MakeAvailable(cpptrace)
 add_library(
   SegFault
   SHARED
-  libSegFault/segfault.c
-  libSegFault/_itoa.c
+  libSegFault/config.cpp
+  libSegFault/segfault.cpp
+  libSegFault/_itoa.cpp
   libSegFault/signal-safe-trace.cpp
 )
 target_include_directories(SegFault PRIVATE libSegFault/${ARCH} libSegFault/) # Note: Order is important

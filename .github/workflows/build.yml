@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +30,7 @@ jobs:
           export LIBSEGFAULT_TRACER="$PWD/build/tracer"
           export LIBSEGFAULT_DEBUG=1
           export LD_PRELOAD="$PWD/build/libSegFault.so"
-          build/faulty-example 2>&1
+          build/faulty-example 2>&1 | grep "faulty-example.cpp"
 
       - name: Release
         uses: softprops/action-gh-release@v2

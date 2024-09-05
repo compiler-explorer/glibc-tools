@@ -1,4 +1,5 @@
 #include "signal-safe-trace.hpp"
+#include "config.hpp"
 
 #include <cpptrace/cpptrace.hpp>
 
@@ -13,6 +14,8 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
+#include <errno.h>
 
 using namespace std::literals;
 
@@ -30,8 +33,6 @@ struct pipe_t
 };
 static_assert(sizeof(pipe_t) == 2 * sizeof(int), "Unexpected struct packing");
 
-std::string tracer_program = "tracer";
-
 void warmup_cpptrace()
 {
     cpptrace::frame_ptr buffer[10];
@@ -40,19 +41,17 @@ void warmup_cpptrace()
     cpptrace::get_safe_object_frame(buffer[0], &frame);
 }
 
+
 [[gnu::constructor]] void init()
 {
     warmup_cpptrace();
-    if (const char *value = getenv("LIBSEGFAULT_TRACER"))
-    {
-        tracer_program = value;
-    }
 }
 
-constexpr auto fork_failure_message = "fork() failed, unable to collect trace\n"sv;
-auto no_tracer_message = "exec(signal_tracer) failed: Please supply the environment variable LIBSEGFAULT_TRACER.\n"sv;
+const auto fork_failure_message = "fork() failed, unable to collect trace\n"sv;
+const auto no_tracer_message = "exec(signal_tracer) failed: Please supply the environment variable LIBSEGFAULT_TRACER.\n"sv;
 
-auto exec_failure_message = "exec(signal_tracer) failed: Make sure the signal_tracer exists and the executable permissions are correct.\n"sv;
+const auto exec_failure_message =
+"exec(signal_tracer) failed: Make sure the signal_tracer exists and the executable permissions are correct.\n"sv;
 
 void do_signal_safe_trace()
 {
@@ -74,10 +73,23 @@ void do_signal_safe_trace()
         dup2(input_pipe.read_end, STDIN_FILENO);
         close(input_pipe.read_end);
         close(input_pipe.write_end);
-        if (tracer_program.length() == 0) {
+
+        bool is_debug = isDebugMode();
+        const char *tracer_program = getTracerProgram();
+        if (strlen(tracer_program) == 0)
+        {
             std::ignore = write(STDERR_FILENO, no_tracer_message.data(), no_tracer_message.size());
-        } else {
-            execl(tracer_program.c_str(), tracer_program.c_str(), nullptr);
+        }
+        else
+        {
+            execl(tracer_program, tracer_program, nullptr);
+
+            if (is_debug)
+            {
+                auto errcode = errno;
+                fprintf(stderr, "errno: %d\n", errcode);
+                fprintf(stderr, "tried to execute: %s\n", tracer_program);
+            }
 
             // https://linux.die.net/man/3/execl - execl() only returns when an error has occured
             //  otherwise this basically exits out of this code

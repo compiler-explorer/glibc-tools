@@ -33,6 +33,7 @@
 #include <sigcontextinfo.h>
 
 #include "signal-safe-trace.hpp"
+#include "config.hpp"
 
 #ifdef SA_SIGINFO
 #define SIGCONTEXT siginfo_t *info, void *
@@ -84,7 +85,10 @@ static void catch_segfault(int signal, SIGCONTEXT ctx)
     WRITE_STRING("\n");
 
 #ifdef REGISTER_DUMP
-    REGISTER_DUMP;
+    if (dumpRegisters())
+    {
+        REGISTER_DUMP;
+    }
 #endif
 
     WRITE_STRING("\n");
@@ -92,19 +96,22 @@ static void catch_segfault(int signal, SIGCONTEXT ctx)
     do_signal_safe_trace();
 
 #ifdef HAVE_PROC_SELF
-    /* Now the link map.  */
-    int mapfd = open("/proc/self/maps", O_RDONLY);
-    if (mapfd != -1)
+    if (dumpMemory())
     {
-        WRITE_STRING("\nMemory map:\n\n");
+        /* Now the link map.  */
+        int mapfd = open("/proc/self/maps", O_RDONLY);
+        if (mapfd != -1)
+        {
+            WRITE_STRING("\nMemory map:\n\n");
 
-        char buf[256];
-        ssize_t n;
+            char buf[256];
+            ssize_t n;
 
-        while ((n = TEMP_FAILURE_RETRY(read(mapfd, buf, sizeof(buf)))) > 0)
-            TEMP_FAILURE_RETRY(write(fd, buf, n));
+            while ((n = TEMP_FAILURE_RETRY(read(mapfd, buf, sizeof(buf)))) > 0)
+                TEMP_FAILURE_RETRY(write(fd, buf, n));
 
-        close(mapfd);
+            close(mapfd);
+        }
     }
 #endif
 
@@ -133,8 +140,7 @@ static void __attribute__((constructor)) install_handler(void)
     sigemptyset(&sa.sa_mask);
     sa.sa_flags |= SA_RESTART;
 
-    /* Maybe we are expected to use an alternative stack.  */
-    if (getenv("SEGFAULT_USE_ALTSTACK") != 0)
+    if (useAlternativeStack())
     {
         void *stack_mem = malloc(2 * SIGSTKSZ);
         stack_t ss;
