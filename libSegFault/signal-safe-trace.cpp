@@ -45,9 +45,11 @@ void warmup_cpptrace()
 [[gnu::constructor]] void init()
 {
     warmup_cpptrace();
+    fprintf(stderr, "signal-safe-trace.cpp init()");
     if (const char *value = getenv("LIBSEGFAULT_TRACER"))
     {
         tracer_program = value;
+        fprintf(stderr, "signal-safe-trace.cpp init() found LIBSEGFAULT_TRACER");
     }
 }
 
