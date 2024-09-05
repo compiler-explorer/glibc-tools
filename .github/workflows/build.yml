@@ -21,7 +21,7 @@ jobs:
 
       - name: Build
         run: |
-          make release
+          make debug
           tar -C build -cJf glibc-tools-x86_64.tar.xz libSegFault.so tracer
 
       - name: Test
