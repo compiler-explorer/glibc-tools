@@ -23,17 +23,11 @@ jobs:
         run: |
           make release
 
-      - uses: actions/upload-artifact@v4
-        with:
-          path: |
-            libSegFault.so
-            tracer
-
       - name: Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           fail_on_unmatched_files: true
           files: |
-            bin/libSegFault.so
-            bin/tracer
+            build/bin/libSegFault.so
+            build/bin/tracer
