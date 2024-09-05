@@ -46,10 +46,11 @@ void warmup_cpptrace()
 {
     warmup_cpptrace();
     fprintf(stderr, "signal-safe-trace.cpp init()");
-    if (const char *value = getenv("LIBSEGFAULT_TRACER"))
+    if (const char *value = getenv("LIBSEGFAULT_TRACER\n"))
     {
         tracer_program = value;
-        fprintf(stderr, "signal-safe-trace.cpp init() found LIBSEGFAULT_TRACER");
+        fprintf(stderr, "signal-safe-trace.cpp init() found LIBSEGFAULT_TRACER\n");
+        fprintf(stderr, "LIBSEGFAULT_TRACER=%s\n", tracer_program.c_str());
     }
 }
 
