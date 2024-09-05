@@ -21,6 +21,7 @@ jobs:
 
       - name: Build
         run: |
+          c++ --version
           make debug
           ldd build/libSegFault.so
           tar -C build -cJf glibc-tools-x86_64.tar.xz libSegFault.so tracer
