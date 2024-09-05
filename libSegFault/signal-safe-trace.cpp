@@ -32,8 +32,6 @@ struct pipe_t
 };
 static_assert(sizeof(pipe_t) == 2 * sizeof(int), "Unexpected struct packing");
 
-static std::string tracer_program = "tracer";
-
 void warmup_cpptrace()
 {
     cpptrace::frame_ptr buffer[10];
@@ -42,16 +40,19 @@ void warmup_cpptrace()
     cpptrace::get_safe_object_frame(buffer[0], &frame);
 }
 
+std::string getTracerProgram() {
+    if (const char *value = getenv("LIBSEGFAULT_TRACER"))
+    {
+        return std::string(value);
+    }
+
+    return std::string("");
+}
+
+
 [[gnu::constructor]] void init()
 {
     warmup_cpptrace();
-    fprintf(stderr, "signal-safe-trace.cpp init()\n");
-    if (const char *value = getenv("LIBSEGFAULT_TRACER"))
-    {
-        tracer_program = value;
-        fprintf(stderr, "signal-safe-trace.cpp init() found LIBSEGFAULT_TRACER\n");
-        fprintf(stderr, "LIBSEGFAULT_TRACER=%s\n", tracer_program.c_str());
-    }
 }
 
 constexpr auto fork_failure_message = "fork() failed, unable to collect trace\n"sv;
@@ -79,6 +80,7 @@ void do_signal_safe_trace()
         dup2(input_pipe.read_end, STDIN_FILENO);
         close(input_pipe.read_end);
         close(input_pipe.write_end);
+        auto tracer_program = getTracerProgram();
         if (tracer_program.length() == 0) {
             std::ignore = write(STDERR_FILENO, no_tracer_message.data(), no_tracer_message.size());
         } else {
