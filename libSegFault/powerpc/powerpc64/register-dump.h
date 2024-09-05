@@ -14,8 +14,8 @@
    You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
-#include <sys/uio.h>
 #include <_itoa.h>
+#include <sys/uio.h>
 
 /* This prints out the information in the following form: */
 static const char dumpform[] = "\
@@ -95,28 +95,26 @@ fp28-31: 00000000000004c% 00000000000004d% 00000000000004e% 00000000000004f%\n\
 
 #define xtoi(x) (x >= 'a' ? x + 10 - 'a' : x - '0')
 
-static void
-register_dump (int fd, struct sigcontext *ctx)
+static void register_dump(int fd, struct sigcontext *ctx)
 {
-  char buffer[sizeof (dumpform)];
-  char *bufferpos;
-  unsigned regno;
-  unsigned long *regs = (unsigned long *)(ctx->regs);
+    char buffer[sizeof(dumpform)];
+    char *bufferpos;
+    unsigned regno;
+    unsigned long *regs = (unsigned long *)(ctx->regs);
 
-  memcpy(buffer, dumpform, sizeof (dumpform));
+    memcpy(buffer, dumpform, sizeof(dumpform));
 
-  /* Generate the output.  */
-  while ((bufferpos = memchr (buffer, '%', sizeof (dumpform))))
+    /* Generate the output.  */
+    while ((bufferpos = memchr(buffer, '%', sizeof(dumpform))))
     {
-      regno = xtoi (bufferpos[-1]) | xtoi (bufferpos[-2]) << 4;
-      memset (bufferpos-2, '0', 3);
-      _itoa_word (regs[regno], bufferpos+1, 16, 0);
+        regno = xtoi(bufferpos[-1]) | xtoi(bufferpos[-2]) << 4;
+        memset(bufferpos - 2, '0', 3);
+        _itoa_word(regs[regno], bufferpos + 1, 16, 0);
     }
 
-  /* Write the output.  */
-  write (fd, buffer, sizeof (buffer) - 1);
+    /* Write the output.  */
+    write(fd, buffer, sizeof(buffer) - 1);
 }
 
 
-#define REGISTER_DUMP \
-  register_dump (fd, ctx)
+#define REGISTER_DUMP register_dump(fd, ctx)

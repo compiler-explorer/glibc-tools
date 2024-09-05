@@ -1,29 +1,27 @@
-#!/bin/sh
-# Copyright (C) 1998-2022 Free Software Foundation, Inc.
+#!/ bin / sh
+#Copyright(C) 1998 - 2022 Free Software Foundation, Inc.
 #
-# This program is free software: you can redistribute it and/or modify it
-# under the terms of the GNU Lesser General Public License as published
-# by the Free Software Foundation; either version 2.1 of the License, or
-# (at your option) any later version.
+#This program is free software : you can redistribute it and / or modify it
+#under the terms of the GNU Lesser General Public License as published
+#by the Free Software Foundation; either version 2.1 of the License, or
+#(at your option) any later version.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+#GNU Lesser General Public License for more details.
 #
-# You should have received a copy of the GNU Lesser General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
+#You should have received a copy of the GNU Lesser General Public License
+#along with this program.If not, see < https: // www.gnu.org/licenses/>.  */
 
-if test $# -eq 0; then
-  echo "$0: missing program name" >&2
-  echo "Try \`$0 --help' for more information." >&2
-  exit 1
-fi
+if test
+    $ # - eq 0;
+then echo "$0: missing program name" > &2 echo "Try \`$0 --help' for more information." > & 2 exit 1 fi
 
-prog="$1"
-shift
+                                                                                          prog = "$1" shift
 
-if test $# -eq 0; then
+                                                                                                 if test $ # -
+                                                                                                 eq 0; then
   case "$prog" in
     --h | --he | --hel | --help)
       echo 'Usage: catchsegv PROGRAM ARGS...'
@@ -48,26 +46,30 @@ Written by Ulrich Drepper.'
   esac
 fi
 
-segv_output=`mktemp ${TMPDIR:-/tmp}/segv_output.XXXXXX` || exit
+segv_output=`mktemp ${TMPDIR:
+- / tmp
+}
+/ segv_output.XXXXXX` || exit
 
-# Redirect stderr to avoid termination message from shell.
-(exec 3>&2 2>/dev/null
-LD_PRELOAD=${LD_PRELOAD:+${LD_PRELOAD}:}@SLIB@/libSegFault.so \
-SEGFAULT_USE_ALTSTACK=1 \
-SEGFAULT_OUTPUT_NAME=$segv_output \
-"$prog" ${1+"$@"} 2>&3 3>&-)
-exval=$?
+#Redirect stderr to avoid termination message from shell.
+(
+exec 3 > &2 2 > / dev / null LD_PRELOAD =
+$ {
+LD_PRELOAD:
+    +${ LD_PRELOAD }:
+} @SLIB @ /
+libSegFault.so SEGFAULT_USE_ALTSTACK = 1 SEGFAULT_OUTPUT_NAME = $segv_output "$prog" $ { 1 + "$@" } 2 > &3 3 > &-) exval = $ ?
 
-# Check for output.  Even if the program terminated correctly it might
-# be that a minor process (clone) failed.  Therefore we do not check the
-# exit code.
-if test -s "$segv_output"; then
-  # The program caught a signal.  The output is in the file with the
-  # name we have in SEGFAULT_OUTPUT_NAME.  In the output the names of
-  # functions in shared objects are available, but names in the static
-  # part of the program are not.  We use addr2line to get this information.
-  case $prog in
-  */*) ;;
+#Check for output.Even if the program terminated correctly it might
+#be that a minor process(clone) failed.Therefore we do not check the
+#exit code.
+if test - s "$segv_output";
+then
+#The program caught a signal.The output is in the file with the
+#name we have in SEGFAULT_OUTPUT_NAME.In the output the names of
+#functions in shared objects are available, but names in the static
+#part of the program are not .We use addr2line to get this information.
+case $prog in */*) ;;
   *)
     old_IFS=$IFS
     IFS=:

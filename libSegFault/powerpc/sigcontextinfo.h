@@ -18,13 +18,12 @@
 
 #include <signal.h>
 
-static inline uintptr_t
-sigcontext_get_pc (const ucontext_t *ctx)
+static inline uintptr_t sigcontext_get_pc(const ucontext_t *ctx)
 {
 #ifdef __powerpc64__
-  return ctx->uc_mcontext.gp_regs[PT_NIP];
+    return ctx->uc_mcontext.gp_regs[PT_NIP];
 #else
-  return ctx->uc_mcontext.uc_regs->gregs[PT_NIP];
+    return ctx->uc_mcontext.uc_regs->gregs[PT_NIP];
 #endif
 }
 

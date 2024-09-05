@@ -29,14 +29,12 @@
    mapped to _itoa_word.  */
 
 #ifndef _ITOA_NEEDED
-# define _ITOA_NEEDED           (LONG_MAX != LLONG_MAX)
+#define _ITOA_NEEDED (LONG_MAX != LLONG_MAX)
 #endif
 #ifndef _ITOA_WORD_TYPE
-# define _ITOA_WORD_TYPE        unsigned long int
+#define _ITOA_WORD_TYPE unsigned long int
 #endif
 
-extern char *_itoa_word (_ITOA_WORD_TYPE value, char *buflim,
-                         unsigned int base,
-                         int upper_case) attribute_hidden;
+extern char *_itoa_word(_ITOA_WORD_TYPE value, char *buflim, unsigned int base, int upper_case) attribute_hidden;
 
 #endif

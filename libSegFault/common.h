@@ -17,10 +17,10 @@
 #ifndef _COMMON_H
 #define _COMMON_H
 
-#define attribute_hidden __attribute__ ((visibility ("hidden")))
+#define attribute_hidden __attribute__((visibility("hidden")))
 
 #ifdef __linux__
-# define HAVE_PROC_SELF
+#define HAVE_PROC_SELF
 #endif
 
 #endif

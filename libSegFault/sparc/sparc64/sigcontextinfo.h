@@ -40,19 +40,18 @@
 
 struct pt_regs
 {
-  unsigned long int u_regs[16];
-  unsigned long int tstate;
-  unsigned long int tpc;
-  unsigned long int tnpc;
-  unsigned int y;
-  unsigned int magic;
+    unsigned long int u_regs[16];
+    unsigned long int tstate;
+    unsigned long int tpc;
+    unsigned long int tnpc;
+    unsigned int y;
+    unsigned int magic;
 };
 
-static inline uintptr_t
-sigcontext_get_pc (const siginfo_t *ctx)
+static inline uintptr_t sigcontext_get_pc(const siginfo_t *ctx)
 {
-  struct pt_regs *regs = (struct pt_regs*) ((siginfo_t *)(ctx) + 1);
-  return regs->tpc;
+    struct pt_regs *regs = (struct pt_regs *)((siginfo_t *)(ctx) + 1);
+    return regs->tpc;
 }
 
 #endif

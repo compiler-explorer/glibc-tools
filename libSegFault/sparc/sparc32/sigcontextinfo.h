@@ -37,17 +37,16 @@
 
 struct pt_regs32
 {
-  unsigned int psr;
-  unsigned int pc;
-  unsigned int npc;
-  unsigned int y;
-  unsigned int u_regs[16];
+    unsigned int psr;
+    unsigned int pc;
+    unsigned int npc;
+    unsigned int y;
+    unsigned int u_regs[16];
 };
 
-static inline uintptr_t
-sigcontext_get_pc (const struct pt_regs32 *ctx)
+static inline uintptr_t sigcontext_get_pc(const struct pt_regs32 *ctx)
 {
-  return ctx->pc;
+    return ctx->pc;
 }
 
 #endif

@@ -18,10 +18,9 @@
 
 /* Unlike other architectures, ia64 passes 'struct sigcontext' pointer as
    the third argument to a sa_sigaction handler with SA_SIGINFO enabled.  */
-static inline uintptr_t
-sigcontext_get_pc (const struct sigcontext *ctx)
+static inline uintptr_t sigcontext_get_pc(const struct sigcontext *ctx)
 {
-  return ctx->sc_ip;
+    return ctx->sc_ip;
 }
 
 #endif

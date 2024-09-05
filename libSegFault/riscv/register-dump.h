@@ -14,48 +14,43 @@
    You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
-#include <unistd.h>
-#include <string.h>
 #include <_itoa.h>
+#include <string.h>
+#include <unistd.h>
 
-static void
-hexvalue (unsigned long int value, char *buf, size_t len)
+static void hexvalue(unsigned long int value, char *buf, size_t len)
 {
-  char *cp = _itoa_word (value, buf + len, 16, 0);
-  while (cp > buf)
-    *--cp = '0';
+    char *cp = _itoa_word(value, buf + len, 16, 0);
+    while (cp > buf)
+        *--cp = '0';
 }
 
 #define REGDUMP_NREGS 32
 #define REGDUMP_PER_LINE (80 / (__WORDSIZE / 4 + 4))
 
-static void
-register_dump (int fd, ucontext_t *ctx)
+static void register_dump(int fd, ucontext_t *ctx)
 {
-  int i;
-  char regvalue[__WORDSIZE / 4 + 1];
-  char str[82 * ((REGDUMP_NREGS + REGDUMP_PER_LINE - 1) / REGDUMP_PER_LINE)];
+    int i;
+    char regvalue[__WORDSIZE / 4 + 1];
+    char str[82 * ((REGDUMP_NREGS + REGDUMP_PER_LINE - 1) / REGDUMP_PER_LINE)];
 
-  static const char names[REGDUMP_NREGS][4] = {
-    "pc", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
-    "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
-    "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
-    "s8", "s9", "sA", "sB", "t3", "t4", "t5", "t6"
-  };
+    static const char names[REGDUMP_NREGS][4] = { "pc", "ra", "sp", "gp", "tp", "t0", "t1", "t2", "s0", "s1", "a0",
+                                                  "a1", "a2", "a3", "a4", "a5", "a6", "a7", "s2", "s3", "s4", "s5",
+                                                  "s6", "s7", "s8", "s9", "sA", "sB", "t3", "t4", "t5", "t6" };
 
-  str[0] = 0;
-  for (i = 0; i < REGDUMP_NREGS; i++)
+    str[0] = 0;
+    for (i = 0; i < REGDUMP_NREGS; i++)
     {
-      strcat (str, names[i]);
-      strcat (str, " ");
-      hexvalue (ctx->uc_mcontext.__gregs[i], regvalue, __WORDSIZE / 4);
-      strcat (str, regvalue);
+        strcat(str, names[i]);
+        strcat(str, " ");
+        hexvalue(ctx->uc_mcontext.__gregs[i], regvalue, __WORDSIZE / 4);
+        strcat(str, regvalue);
 
-      if ((i + 1) % REGDUMP_PER_LINE == 0)
-	strcat (str, "\n");
+        if ((i + 1) % REGDUMP_PER_LINE == 0)
+            strcat(str, "\n");
     }
 
-  write (fd, str, strlen (str));
+    write(fd, str, strlen(str));
 }
 
-#define REGISTER_DUMP register_dump (fd, ctx)
+#define REGISTER_DUMP register_dump(fd, ctx)
