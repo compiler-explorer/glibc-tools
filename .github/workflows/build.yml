@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v4
@@ -20,11 +20,8 @@ jobs:
           sudo apt-get install -y ninja-build libunwind-dev
 
       - name: Build
-        env:
-          CC: gcc-13
-          CXX: g++-13
         run: |
-          $CXX --version
+          g++ --version
           make debug
           ldd build/libSegFault.so
           tar -C build -cJf glibc-tools-x86_64.tar.xz libSegFault.so tracer
