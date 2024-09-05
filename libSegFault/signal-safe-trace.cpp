@@ -6,6 +6,7 @@
 #include <cctype>
 #include <iostream>
 #include <string>
+#include <string_view>
 
 #include <sys/wait.h>
 #include <cstring>
@@ -13,7 +14,7 @@
 #include <csignal>
 #include <unistd.h>
 
-std::string tracer_program = "tracer";
+using namespace std::literals;
 
 struct pipe_t {
     union {
@@ -25,6 +26,8 @@ struct pipe_t {
     };
 };
 static_assert(sizeof(pipe_t) == 2 * sizeof(int), "Unexpected struct packing");
+
+std::string tracer_program = "tracer";
 
 void warmup_cpptrace() {
     cpptrace::frame_ptr buffer[10];
@@ -40,13 +43,20 @@ void warmup_cpptrace() {
     }
 }
 
+constexpr auto fork_failure_message = "fork() failed, unable to collect trace\n"sv;
+auto exec_failure_message = "exec(signal_tracer) failed: Make sure the signal_tracer executable is in the current "
+                            "working directory and the binary's permissions are correct.\n"sv;
+
 void do_signal_safe_trace() {
     cpptrace::frame_ptr buffer[100];
     std::size_t count = cpptrace::safe_generate_raw_trace(buffer, 100);
     pipe_t input_pipe;
     pipe(input_pipe.data);
     const pid_t pid = fork();
-    if(pid == -1) { return; }
+    if(pid == -1) {
+        write(STDERR_FILENO, fork_failure_message.data(), fork_failure_message.size());
+        return;
+    }
     if(pid == 0) { // child
         dup2(input_pipe.read_end, STDIN_FILENO);
         close(input_pipe.read_end);
@@ -56,9 +66,7 @@ void do_signal_safe_trace() {
             tracer_program.c_str(),
             nullptr
         );
-        const char* exec_failure_message = "exec(signal_tracer) failed: Make sure the signal_tracer executable is in "
-            "the current working directory and the binary's permissions are correct.\n";
-        write(STDERR_FILENO, exec_failure_message, strlen(exec_failure_message));
+        write(STDERR_FILENO, exec_failure_message.data(), exec_failure_message.size());
         _exit(1);
     }
     for(std::size_t i = 0; i < count; i++) {
