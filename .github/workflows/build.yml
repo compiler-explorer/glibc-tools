@@ -21,9 +21,7 @@ jobs:
 
       - name: Build
         run: |
-          g++ --version
-          make debug
-          ldd build/libSegFault.so
+          make release
           tar -C build -cJf glibc-tools-x86_64.tar.xz libSegFault.so tracer
 
       - name: Test
@@ -32,7 +30,7 @@ jobs:
           export LIBSEGFAULT_TRACER="$PWD/build/tracer"
           export LIBSEGFAULT_DEBUG=1
           export LD_PRELOAD="$PWD/build/libSegFault.so"
-          build/faulty-example 2>&1
+          build/faulty-example 2>&1 | grep "faulty-example.cpp"
 
       - name: Release
         uses: softprops/action-gh-release@v2

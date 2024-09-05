@@ -7,6 +7,7 @@ Changes to libSegFault:
 
 Dependencies:
 
+- GCC 11 or higher (or equivalent)
 - Cpptrace depends on libdwarf, zlib, zstd, and is configured to use libunwind.
 
 Contributing:
