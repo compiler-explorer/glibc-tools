@@ -35,3 +35,8 @@ add_executable(
 )
 target_link_libraries(tracer cpptrace::cpptrace)
 target_compile_features(tracer PRIVATE cxx_std_20)
+
+add_executable(
+  faulty-example
+  faulty-example/faulty-example.cpp
+)

@@ -26,9 +26,8 @@ jobs:
 
       - name: Test
         run: |
-          pushd build
-          ./tracer --help
-          popd
+          build/tracer --help
+          LIBSEGFAULT_TRACER="$PWD/build/tracer" LD_PRELOAD="$PWD/build/libSegFault.so" build/faulty-example | /bin/true
 
       - name: Release
         uses: softprops/action-gh-release@v2
