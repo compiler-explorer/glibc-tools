@@ -1,5 +1,0 @@
-glibc-tools (0.0~git3.23fd2b9-0ubuntu1) jammy; urgency=medium
-
-  * Initial release.
-
- -- Michael Hudson-Doyle <michael.hudson@ubuntu.com>  Wed, 26 Jan 2022 12:27:29 +1300
