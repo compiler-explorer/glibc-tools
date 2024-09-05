@@ -81,7 +81,7 @@ void do_signal_safe_trace()
         } else {
             execl(tracer_program.c_str(), tracer_program.c_str(), nullptr);
             auto errcode = errno;
-            printf("errno: %d\n", errcode);
+            fprintf(stderr, "errno: %d\n", errcode);
 
             // https://linux.die.net/man/3/execl - execl() only returns when an error has occured
             //  otherwise this basically exits out of this code
