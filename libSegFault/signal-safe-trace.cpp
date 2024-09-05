@@ -50,8 +50,9 @@ void warmup_cpptrace()
 }
 
 constexpr auto fork_failure_message = "fork() failed, unable to collect trace\n"sv;
-auto exec_failure_message = "exec(signal_tracer) failed: Make sure the signal_tracer executable is in the current "
-                            "working directory and the binary's permissions are correct.\n"sv;
+auto no_tracer_message = "exec(signal_tracer) failed: Please supply the environment variable LIBSEGFAULT_TRACER.\n"sv;
+
+auto exec_failure_message = "exec(signal_tracer) failed: Make sure the signal_tracer exists and the executable permissions are correct.\n"sv;
 
 void do_signal_safe_trace()
 {
@@ -73,8 +74,17 @@ void do_signal_safe_trace()
         dup2(input_pipe.read_end, STDIN_FILENO);
         close(input_pipe.read_end);
         close(input_pipe.write_end);
-        execl(tracer_program.c_str(), tracer_program.c_str(), nullptr);
-        std::ignore = write(STDERR_FILENO, exec_failure_message.data(), exec_failure_message.size());
+        if (tracer_program.length() == 0) {
+            std::ignore = write(STDERR_FILENO, no_tracer_message.data(), no_tracer_message.size());
+        } else {
+            execl(tracer_program.c_str(), tracer_program.c_str(), nullptr);
+
+            // https://linux.die.net/man/3/execl - execl() only returns when an error has occured
+            //  otherwise this basically exits out of this code
+            // so this write() is only executed when a failure has occured
+
+            std::ignore = write(STDERR_FILENO, exec_failure_message.data(), exec_failure_message.size());
+        }
         _exit(1);
     }
 
