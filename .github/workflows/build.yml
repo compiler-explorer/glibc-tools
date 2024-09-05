@@ -22,7 +22,7 @@ jobs:
       - name: Build
         run: |
           make release
-          zip -9 glibc-tools-x86_64.zip build/libSegFault.so build/tracer
+          tar -C build -cJf glibc-tools-x86_64.tar.xz libSegFault.so tracer
 
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -30,4 +30,4 @@ jobs:
         with:
           fail_on_unmatched_files: true
           files: |
-            glibc-tools-x86_64.zip
+            glibc-tools-x86_64.tar.xz
