@@ -14,6 +14,8 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include <errno.h>
+
 using namespace std::literals;
 
 struct pipe_t
@@ -78,6 +80,8 @@ void do_signal_safe_trace()
             std::ignore = write(STDERR_FILENO, no_tracer_message.data(), no_tracer_message.size());
         } else {
             execl(tracer_program.c_str(), tracer_program.c_str(), nullptr);
+            auto errcode = errno;
+            printf("errno: %d\n", errcode);
 
             // https://linux.die.net/man/3/execl - execl() only returns when an error has occured
             //  otherwise this basically exits out of this code
