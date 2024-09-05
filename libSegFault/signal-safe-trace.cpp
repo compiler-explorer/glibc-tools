@@ -57,29 +57,34 @@ void do_signal_safe_trace()
 {
     cpptrace::frame_ptr buffer[100];
     std::size_t count = cpptrace::safe_generate_raw_trace(buffer, 100);
+
     pipe_t input_pipe;
-    pipe(input_pipe.data);
+    std::ignore = pipe(input_pipe.data);
+
     const pid_t pid = fork();
     if (pid == -1)
     {
-        write(STDERR_FILENO, fork_failure_message.data(), fork_failure_message.size());
+        std::ignore = write(STDERR_FILENO, fork_failure_message.data(), fork_failure_message.size());
         return;
     }
+
     if (pid == 0)
     { // child
         dup2(input_pipe.read_end, STDIN_FILENO);
         close(input_pipe.read_end);
         close(input_pipe.write_end);
         execl(tracer_program.c_str(), tracer_program.c_str(), nullptr);
-        write(STDERR_FILENO, exec_failure_message.data(), exec_failure_message.size());
+        std::ignore = write(STDERR_FILENO, exec_failure_message.data(), exec_failure_message.size());
         _exit(1);
     }
+
     for (std::size_t i = 0; i < count; i++)
     {
         cpptrace::safe_object_frame frame;
         cpptrace::get_safe_object_frame(buffer[i], &frame);
-        write(input_pipe.write_end, &frame, sizeof(frame));
+        std::ignore = write(input_pipe.write_end, &frame, sizeof(frame));
     }
+
     close(input_pipe.read_end);
     close(input_pipe.write_end);
     waitpid(pid, nullptr, 0);

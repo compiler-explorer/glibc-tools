@@ -315,7 +315,7 @@ static void register_dump(int fd, ucontext_t *ctx)
     ADD_STRING("\n");
 
     /* Write the stuff out.  */
-    writev(fd, iov, nr);
+    ssize_t c = writev(fd, iov, nr);
 }
 
 
