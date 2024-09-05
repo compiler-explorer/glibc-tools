@@ -20,8 +20,11 @@ jobs:
           sudo apt-get install -y ninja-build libunwind-dev
 
       - name: Build
+        env:
+          CC: gcc-13
+          CXX: g++-13
         run: |
-          c++ --version
+          $CXX --version
           make debug
           ldd build/libSegFault.so
           tar -C build -cJf glibc-tools-x86_64.tar.xz libSegFault.so tracer
