@@ -47,26 +47,33 @@ std::string tracer_program = [] {
     return value ? value : "";
 } ();
 
-std::vector<std::string> tracer_env;
-std::vector<char*> tracer_env_buffer;
-
 extern char **environ;
+
+const std::vector<std::string> tracer_env = [] {
+    std::vector<std::string> tracer_env;
+    for (char **s = environ; *s; s++) {
+        std::string_view var = *s;
+        if(!var.starts_with("LD_PRELOAD=")) {
+            tracer_env.emplace_back(var);
+        }
+    }
+    return tracer_env;
+} ();
+
+const std::vector<char*> tracer_env_buffer = [] {
+    std::vector<char*> tracer_env_buffer;
+    for(const auto& var : tracer_env) {
+        tracer_env_buffer.emplace_back(var.data());
+    }
+    tracer_env_buffer.emplace_back(nullptr);
+    return tracer_env_buffer;
+} ();
+
+const bool is_debug = isDebugMode();
 
 [[gnu::constructor]] void init()
 {
     warmup_cpptrace();
-    for (char **s = environ; *s; s++) {
-        std::string var = *s;
-        if(!var.starts_with("LD_PRELOAD=")) {
-            tracer_env.emplace_back(std::move(var));
-            tracer_env_buffer.emplace_back(tracer_env.back().data());
-        }
-        printf("%s\n", *s);
-    }
-    tracer_env_buffer.emplace_back(nullptr);
-    // printf("init() setting tracer_program: %s\n", tracer_program.c_str());
-    fflush(stdout);
-    sleep(5);
 }
 
 const auto fork_failure_message = "fork() failed, unable to collect trace\n"sv;
@@ -100,9 +107,7 @@ void do_signal_safe_trace()
         close(input_pipe.read_end);
         close(input_pipe.write_end);
 
-        bool is_debug = false; isDebugMode();
-        // const char *tracer_program = getTracerProgram();
-        if (tracer_program.size() == 0) // (strlen(tracer_program) == 0)
+        if (tracer_program.size() == 0)
         {
             std::ignore = write(STDERR_FILENO, no_tracer_message.data(), no_tracer_message.size());
         }

@@ -59,6 +59,8 @@ static void write_strsignal(int fd, int signal)
     TEMP_FAILURE_RETRY(write(fd, ptr, &buf[sizeof(buf)] - ptr));
 }
 
+const auto dump_registers = dumpRegisters();
+const auto dump_memory = dumpMemory();
 
 /* This function is called when a segmentation fault is caught.  The system
    is in an unstable state now.  This means especially that malloc() might
@@ -85,7 +87,7 @@ static void catch_segfault(int signal, SIGCONTEXT ctx)
     WRITE_STRING("\n");
 
 #ifdef REGISTER_DUMP
-    if (dumpRegisters())
+    if (dump_registers)
     {
         REGISTER_DUMP;
     }
@@ -96,7 +98,7 @@ static void catch_segfault(int signal, SIGCONTEXT ctx)
     do_signal_safe_trace();
 
 #ifdef HAVE_PROC_SELF
-    if (dumpMemory())
+    if (dump_memory)
     {
         /* Now the link map.  */
         int mapfd = open("/proc/self/maps", O_RDONLY);
