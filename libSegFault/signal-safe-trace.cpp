@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <string_view>
+#include <vector>
 
 #include <csignal>
 #include <cstring>
@@ -41,6 +42,40 @@ void warmup_cpptrace()
     cpptrace::get_safe_object_frame(buffer[0], &frame);
 }
 
+std::string tracer_program = []
+{
+    const char *value = getenv("LIBSEGFAULT_TRACER");
+    return value ? value : "";
+}();
+
+extern char **environ;
+
+std::vector<std::string> tracer_env = []
+{
+    std::vector<std::string> tracer_env;
+    for (char **s = environ; *s; s++)
+    {
+        std::string_view var = *s;
+        if (!var.starts_with("LD_PRELOAD="))
+        {
+            tracer_env.emplace_back(var);
+        }
+    }
+    return tracer_env;
+}();
+
+const std::vector<char *> tracer_env_buffer = []
+{
+    std::vector<char *> tracer_env_buffer;
+    for (auto &var : tracer_env)
+    {
+        tracer_env_buffer.emplace_back(var.data());
+    }
+    tracer_env_buffer.emplace_back(nullptr);
+    return tracer_env_buffer;
+}();
+
+const bool is_debug = isDebugMode();
 
 [[gnu::constructor]] void init()
 {
@@ -48,10 +83,11 @@ void warmup_cpptrace()
 }
 
 const auto fork_failure_message = "fork() failed, unable to collect trace\n"sv;
-const auto no_tracer_message = "exec(signal_tracer) failed: Please supply the environment variable LIBSEGFAULT_TRACER.\n"sv;
+const auto no_tracer_message = "exec(signal_tracer) failed: Please supply the environment variable "
+                               "LIBSEGFAULT_TRACER.\n"sv;
 
-const auto exec_failure_message =
-"exec(signal_tracer) failed: Make sure the signal_tracer exists and the executable permissions are correct.\n"sv;
+const auto exec_failure_message = "exec(signal_tracer) failed: Make sure the signal_tracer exists and the executable "
+                                  "permissions are correct.\n"sv;
 
 void do_signal_safe_trace()
 {
@@ -74,21 +110,19 @@ void do_signal_safe_trace()
         close(input_pipe.read_end);
         close(input_pipe.write_end);
 
-        bool is_debug = isDebugMode();
-        const char *tracer_program = getTracerProgram();
-        if (strlen(tracer_program) == 0)
+        if (tracer_program.size() == 0)
         {
             std::ignore = write(STDERR_FILENO, no_tracer_message.data(), no_tracer_message.size());
         }
         else
         {
-            execl(tracer_program, tracer_program, nullptr);
+            execle(tracer_program.c_str(), tracer_program.c_str(), nullptr, tracer_env_buffer.data());
 
             if (is_debug)
             {
                 auto errcode = errno;
                 fprintf(stderr, "errno: %d\n", errcode);
-                fprintf(stderr, "tried to execute: %s\n", tracer_program);
+                fprintf(stderr, "tried to execute: %s\n", tracer_program.c_str());
             }
 
             // https://linux.die.net/man/3/execl - execl() only returns when an error has occured
