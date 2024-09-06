@@ -50,7 +50,7 @@ std::string tracer_program = []
 
 extern char **environ;
 
-const std::vector<std::string> tracer_env = []
+std::vector<std::string> tracer_env = []
 {
     std::vector<std::string> tracer_env;
     for (char **s = environ; *s; s++)
@@ -67,7 +67,7 @@ const std::vector<std::string> tracer_env = []
 const std::vector<char *> tracer_env_buffer = []
 {
     std::vector<char *> tracer_env_buffer;
-    for (const auto &var : tracer_env)
+    for (auto &var : tracer_env)
     {
         tracer_env_buffer.emplace_back(var.data());
     }
