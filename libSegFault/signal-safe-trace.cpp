@@ -91,8 +91,6 @@ void do_signal_safe_trace()
     pipe_t input_pipe;
     std::ignore = pipe(input_pipe.data);
 
-    fprintf(stderr, "pre-fork: tracer_program: %s\n", tracer_program.c_str()); fflush(stderr);
-
     const pid_t pid = fork();
     if (pid == -1)
     {
@@ -102,7 +100,6 @@ void do_signal_safe_trace()
 
     if (pid == 0)
     { // child
-        fprintf(stderr, "post-fork: tracer_program: %s\n", tracer_program.c_str()); fflush(stderr);
         dup2(input_pipe.read_end, STDIN_FILENO);
         close(input_pipe.read_end);
         close(input_pipe.write_end);
