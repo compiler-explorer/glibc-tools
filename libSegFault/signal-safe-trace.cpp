@@ -9,6 +9,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <memory>
 
 #include <csignal>
 #include <cstring>
@@ -42,7 +43,7 @@ void warmup_cpptrace()
     cpptrace::get_safe_object_frame(buffer[0], &frame);
 }
 
-std::string* tracer_program;
+std::unique_ptr<std::string> tracer_program;
 
 std::vector<std::string> tracer_env;
 std::vector<char*> tracer_env_buffer;
@@ -63,7 +64,7 @@ extern char **environ;
     tracer_env_buffer.emplace_back(nullptr);
     if (const char *value = getenv("LIBSEGFAULT_TRACER"))
     {
-        tracer_program = new std::string(value);
+        tracer_program = std::make_unique<std::string>(value);
     }
     printf("init() setting tracer_program: %s\n", tracer_program->c_str());
     fflush(stdout);
