@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <string_view>
+#include <vector>
 
 #include <csignal>
 #include <cstring>
@@ -43,20 +44,28 @@ void warmup_cpptrace()
 
 std::string tracer_program;
 
+std::vector<std::string> tracer_env;
+std::vector<char*> tracer_env_buffer;
+
 extern char **environ;
 
 [[gnu::constructor]] void init()
 {
     warmup_cpptrace();
-    char **s = environ;
-    for (; *s; s++) {
+    for (char **s = environ; *s; s++) {
+        std::string var = *s;
+        if(!var.starts_with("LD_PRELOAD=")) {
+            tracer_env.emplace_back(std::move(var));
+            tracer_env_buffer.emplace_back(tracer_env.back().data());
+        }
         printf("%s\n", *s);
     }
+    tracer_env_buffer.emplace_back(nullptr);
     if (const char *value = getenv("LIBSEGFAULT_TRACER"))
     {
         tracer_program = value;
-        printf("tracer_program: %s\n", tracer_program.c_str());
     }
+    printf("tracer_program: %s\n", tracer_program.c_str());
     fflush(stdout);
     sleep(5);
 }
@@ -100,7 +109,7 @@ void do_signal_safe_trace()
         }
         else
         {
-            execl(tracer_program.c_str(), tracer_program.c_str(), nullptr);
+            execle(tracer_program.c_str(), tracer_program.c_str(), nullptr, tracer_env_buffer.data());
 
             if (is_debug)
             {
