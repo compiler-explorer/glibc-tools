@@ -32,5 +32,9 @@ int main(int argc, char **argv)
             trace.frames.push_back(frame.resolve());
         }
     }
-    trace.resolve().print();
+    auto resolved = trace.resolve();
+    while(!resolved.empty() && resolved.frames.front().filename.find("libSegFault/") != std::string::npos) {
+        resolved.frames.erase(resolved.frames.begin());
+    }
+    resolved.print();
 }
