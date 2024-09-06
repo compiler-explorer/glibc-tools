@@ -32,8 +32,8 @@
 #include <register-dump.h>
 #include <sigcontextinfo.h>
 
-#include "signal-safe-trace.hpp"
 #include "config.hpp"
+#include "signal-safe-trace.hpp"
 
 #ifdef SA_SIGINFO
 #define SIGCONTEXT siginfo_t *info, void *

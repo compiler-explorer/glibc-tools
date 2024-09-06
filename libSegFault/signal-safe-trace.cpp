@@ -42,32 +42,38 @@ void warmup_cpptrace()
     cpptrace::get_safe_object_frame(buffer[0], &frame);
 }
 
-std::string tracer_program = [] {
+std::string tracer_program = []
+{
     const char *value = getenv("LIBSEGFAULT_TRACER");
     return value ? value : "";
-} ();
+}();
 
 extern char **environ;
 
-const std::vector<std::string> tracer_env = [] {
+const std::vector<std::string> tracer_env = []
+{
     std::vector<std::string> tracer_env;
-    for (char **s = environ; *s; s++) {
+    for (char **s = environ; *s; s++)
+    {
         std::string_view var = *s;
-        if(!var.starts_with("LD_PRELOAD=")) {
+        if (!var.starts_with("LD_PRELOAD="))
+        {
             tracer_env.emplace_back(var);
         }
     }
     return tracer_env;
-} ();
+}();
 
-const std::vector<char*> tracer_env_buffer = [] {
-    std::vector<char*> tracer_env_buffer;
-    for(const auto& var : tracer_env) {
+const std::vector<char *> tracer_env_buffer = []
+{
+    std::vector<char *> tracer_env_buffer;
+    for (const auto &var : tracer_env)
+    {
         tracer_env_buffer.emplace_back(var.data());
     }
     tracer_env_buffer.emplace_back(nullptr);
     return tracer_env_buffer;
-} ();
+}();
 
 const bool is_debug = isDebugMode();
 
@@ -78,10 +84,10 @@ const bool is_debug = isDebugMode();
 
 const auto fork_failure_message = "fork() failed, unable to collect trace\n"sv;
 const auto no_tracer_message = "exec(signal_tracer) failed: Please supply the environment variable "
-                                "LIBSEGFAULT_TRACER.\n"sv;
+                               "LIBSEGFAULT_TRACER.\n"sv;
 
 const auto exec_failure_message = "exec(signal_tracer) failed: Make sure the signal_tracer exists and the executable "
-                                "permissions are correct.\n"sv;
+                                  "permissions are correct.\n"sv;
 
 void do_signal_safe_trace()
 {
