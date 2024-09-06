@@ -42,7 +42,7 @@ void warmup_cpptrace()
     cpptrace::get_safe_object_frame(buffer[0], &frame);
 }
 
-std::string tracer_program;
+std::string* tracer_program;
 
 std::vector<std::string> tracer_env;
 std::vector<char*> tracer_env_buffer;
@@ -63,9 +63,9 @@ extern char **environ;
     tracer_env_buffer.emplace_back(nullptr);
     if (const char *value = getenv("LIBSEGFAULT_TRACER"))
     {
-        tracer_program = value;
+        tracer_program = new std::string(value);
     }
-    printf("tracer_program: %s\n", tracer_program.c_str());
+    printf("init() setting tracer_program: %s\n", tracer_program->c_str());
     fflush(stdout);
     sleep(5);
 }
@@ -85,7 +85,7 @@ void do_signal_safe_trace()
     pipe_t input_pipe;
     std::ignore = pipe(input_pipe.data);
 
-    fprintf(stderr, "pre-fork: tracer_program: %s\n", tracer_program.c_str()); fflush(stderr);
+    fprintf(stderr, "pre-fork: tracer_program: %s\n", tracer_program->c_str()); fflush(stderr);
 
     const pid_t pid = fork();
     if (pid == -1)
@@ -96,26 +96,26 @@ void do_signal_safe_trace()
 
     if (pid == 0)
     { // child
-        fprintf(stderr, "post-fork: tracer_program: %s\n", tracer_program.c_str()); fflush(stderr);
+        fprintf(stderr, "post-fork: tracer_program: %s\n", tracer_program->c_str()); fflush(stderr);
         dup2(input_pipe.read_end, STDIN_FILENO);
         close(input_pipe.read_end);
         close(input_pipe.write_end);
 
         bool is_debug = false; isDebugMode();
         // const char *tracer_program = getTracerProgram();
-        if (tracer_program.size() == 0) // (strlen(tracer_program) == 0)
+        if (tracer_program->size() == 0) // (strlen(tracer_program) == 0)
         {
             std::ignore = write(STDERR_FILENO, no_tracer_message.data(), no_tracer_message.size());
         }
         else
         {
-            execle(tracer_program.c_str(), tracer_program.c_str(), nullptr, tracer_env_buffer.data());
+            execle(tracer_program->c_str(), tracer_program->c_str(), nullptr, tracer_env_buffer.data());
 
             if (is_debug)
             {
                 auto errcode = errno;
                 fprintf(stderr, "errno: %d\n", errcode);
-                fprintf(stderr, "tried to execute: %s\n", tracer_program.c_str());
+                fprintf(stderr, "tried to execute: %s\n", tracer_program->c_str());
             }
 
             // https://linux.die.net/man/3/execl - execl() only returns when an error has occured
