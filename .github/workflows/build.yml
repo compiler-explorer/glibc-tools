@@ -8,7 +8,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-x86_64:
     runs-on: ubuntu-22.04
 
     steps:
@@ -39,3 +39,30 @@ jobs:
           fail_on_unmatched_files: true
           files: |
             glibc-tools-x86_64.tar.xz
+
+  build-arm64:
+    runs-on: [ 'self-hosted', 'ce', 'linux', 'arm64' ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          make release
+          tar -C build -cJf glibc-tools-arm64.tar.xz libSegFault.so tracer
+
+      - name: Test
+        run: |
+          build/tracer --help
+          export LIBSEGFAULT_TRACER="$PWD/build/tracer"
+          export LIBSEGFAULT_DEBUG=1
+          export LD_PRELOAD="$PWD/build/libSegFault.so"
+          build/faulty-example 2>&1 | grep "faulty-example.cpp"
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          fail_on_unmatched_files: true
+          files: |
+            glibc-tools-arm64.tar.xz
