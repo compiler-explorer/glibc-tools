@@ -16,11 +16,19 @@ build/configured-release:
 	rm -f build/configured-debug
 	touch build/configured-release
 
+build/configured-release-arm64:
+	cmake -S . -B build -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=On -DCPPTRACE_UNWIND_WITH_LIBUNWIND=On -DARCH=aarch64
+	rm -f build/configured-debug
+	touch build/configured-release
+
 .PHONY: configure-debug
 configure-debug: build/configured-debug
 
 .PHONY: configure-release
 configure-release: build/configured-release
+
+.PHONY: configure-release-arm64
+configure-release-arm64: build/configured-release-arm64
 
 .PHONY: debug
 debug: configure-debug  ## build in debug mode
@@ -28,6 +36,10 @@ debug: configure-debug  ## build in debug mode
 
 .PHONY: release
 release: configure-release  ## build in release mode (with debug info)
+	cmake --build build
+
+.PHONY: release-arm64
+release-arm64: configure-release-arm64  ## build in release mode (with debug info)
 	cmake --build build
 
 .PHONY: clean
