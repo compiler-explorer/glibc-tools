@@ -42,6 +42,7 @@ jobs:
 
   build-arm64:
     runs-on: [ 'self-hosted', 'ce', 'linux', 'arm64' ]
+    needs: [build-x86_64]
 
     steps:
       - uses: actions/checkout@v4
@@ -59,7 +60,7 @@ jobs:
           export LIBSEGFAULT_TRACER="$PWD/build/tracer"
           export LIBSEGFAULT_DEBUG=1
           export LD_PRELOAD="$PWD/build/libSegFault.so"
-          build/faulty-example
+          build/faulty-example || /bin/true
 
       - name: Release
         uses: softprops/action-gh-release@v2
