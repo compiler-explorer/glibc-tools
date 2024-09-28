@@ -7,7 +7,7 @@ project(
 )
 
 set(ARCH "x86_64" CACHE STRING "Architecture to build for.")
-set(CPPTRACE_TAG "4f94f20d4159c3708d74079ba7760b890950da7c" CACHE STRING "Cpptrace git tag") # dev tag, post-v0.7.0
+set(CPPTRACE_TAG "v0.7.1" CACHE STRING "Cpptrace git tag") # dev tag, post-v0.7.0
 
 include(FetchContent)
 FetchContent_Declare(
