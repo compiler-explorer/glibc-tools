@@ -42,6 +42,17 @@
 /* Get code to possibly dump the content of all registers.  */
 
 /* We'll use this a lot.  */
+#ifndef TEMP_FAILURE_RETRY
+#define TEMP_FAILURE_RETRY(exp)            \
+  ({                                       \
+    decltype(exp) _rc;                     \
+    do {                                   \
+      _rc = (exp);                         \
+    } while (_rc == -1 && errno == EINTR); \
+    _rc;                                   \
+  })
+#endif
+
 #define WRITE_STRING(s) TEMP_FAILURE_RETRY(write(fd, s, strlen(s)))
 
 /* Name of the output file.  */

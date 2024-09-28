@@ -22,7 +22,11 @@
 
 static inline uintptr_t sigcontext_get_pc(const ucontext_t *ctx)
 {
+    #ifdef __APPLE__
+    return 0;
+    #else
     return ctx->uc_mcontext.pc;
+    #endif
 }
 
 #endif
