@@ -51,7 +51,7 @@ jobs:
         run: |
           export CC=gcc-11
           export CXX=g++-11
-          make release-arm64
+          make debug-arm64
           tar -C build -cJf glibc-tools-arm64.tar.xz libSegFault.so tracer
 
       - name: Test
