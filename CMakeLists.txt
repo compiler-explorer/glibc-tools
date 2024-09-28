@@ -41,3 +41,4 @@ add_executable(
   faulty-example
   faulty-example/faulty-example.cpp
 )
+target_compile_features(faulty-example PRIVATE cxx_std_11)
