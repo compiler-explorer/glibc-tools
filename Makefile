@@ -59,7 +59,7 @@ debug: configure-debug  ## build in debug mode
 	cmake --build build
 
 .PHONY: debug-arm64
-debug: configure-debug-arm64  ## build in debug mode
+debug-arm64: configure-debug-arm64  ## build in debug mode
 	cmake --build build
 
 .PHONY: debug-arm64-mac
