@@ -61,6 +61,7 @@ jobs:
           export LIBSEGFAULT_DEBUG=1
           export LD_PRELOAD="$PWD/build/libSegFault.so"
           build/faulty-example || /bin/true
+          readelf -sW build/faulty-example
 
       - name: Release
         uses: softprops/action-gh-release@v2
